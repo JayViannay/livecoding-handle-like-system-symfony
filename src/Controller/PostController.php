@@ -35,6 +35,9 @@ class PostController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
+        if(!$user){
+            return $this->redirectToRoute('app_login');
+        }
 
         if($post->isLikedByUser($user)){
             $like = $this->likeRepository->findOneBy(['post' => $post, 'user' => $user]);
