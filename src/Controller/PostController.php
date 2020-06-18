@@ -31,19 +31,22 @@ class PostController extends AbstractController
     /**
      * @Route("/post/{id}/like", name="post_like")
      */
-    public function like(Post $post)
+    public function like(Post $post, PostLikeRepository $postLikeRepository)
     {
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
+
         if(!$user){
-            return $this->redirectToRoute('app_login');
+            //return $this->redirectToRoute('app_login');
+            return $this->json(['message' => 'Unauthorized'], 403 );
         }
 
         if($post->isLikedByUser($user)){
             $like = $this->likeRepository->findOneBy(['post' => $post, 'user' => $user]);
             $em->remove($like);
             $em->flush();
-            return $this->redirectToRoute('post');
+            //return $this->redirectToRoute('post');
+            return $this->json(['message' => 'Unliked', 'likes' => $postLikeRepository->count(['post' => $post])], 200 );
         }
         
         $like = new PostLike();
@@ -51,6 +54,7 @@ class PostController extends AbstractController
         $em->persist($like);
         $em->flush();
 
-        return $this->redirectToRoute('post');
+        //return $this->redirectToRoute('post');
+        return $this->json(['message' => 'Liked', 'likes' => $postLikeRepository->count(['post' => $post])], 200 );
     }
 }
